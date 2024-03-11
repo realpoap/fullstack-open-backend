@@ -1,0 +1,27 @@
+{
+  "name": "phonebook-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/realpoap/fullstack-open-backend.git"
+  },
+  "author": "Poap",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/realpoap/fullstack-open-backend/issues"
+  },
+  "homepage": "https://github.com/realpoap/fullstack-open-backend#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "express": "^4.18.3"
+  }
+}
