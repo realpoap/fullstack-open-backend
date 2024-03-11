@@ -54,6 +54,19 @@ app.post('/api/persons/', (req, res) => {
     console.log(id)
     const person = req.body
     person.id = id
+    console.log(req.body);
+
+    if (person.name==='' || !person.number==='') {
+        return (
+            res.status(400).json({error: 'you must fill all info when creating a person contact'})
+        )
+    }
+
+    if (persons.find(p => p.name === person.name)){
+        return (
+            res.status(400).json({error: 'name already used in Phonebook'})
+        )
+    }
 
     persons = persons.concat(person)
     res.json(person)
