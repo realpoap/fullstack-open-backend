@@ -1,7 +1,13 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+// :method :url :status :res[content-length] - :response-time ms
 
 let persons = require('./db.json')
+
+morgan.token('content', function getContent (req) {
+    return JSON.stringify(req.body)
+})
 
 app.use(express.json())
 
@@ -9,11 +15,12 @@ app.get('/', (req, res) => {
     res.send('root')
 })
 
+app.use(morgan(':method :url :status :content - :response-time ms'))
+
 app.get('/info', (req, res) => {
     //enabling CORS (from stackoverflow)
     
     const nbrPersons = persons.length +1
-    console.log(nbrPersons)
     // but how do you get the metadata from the req ?
     // need to enable CORS ?
     // this is driving me crazy... 
@@ -24,11 +31,12 @@ app.get('/info', (req, res) => {
     const date = Date(Date.now())
     console.log(date)
     
-
+    
     res.send(`Phonebook has information on ${nbrPersons} persons.</br>Time of request : ${date}`)
 })
 
 app.get('/api/persons', (req, res) => {
+
     res.json(persons)
 })
 
@@ -37,7 +45,7 @@ app.get('/api/persons/:id', (req, res) => {
     console.log(id);
     const person = persons.find(p => p.id === id)
     if (person) {
-        res.json(person)
+        res.json(person).end()
     } else { 
         res.status(404).end() 
     }
@@ -51,10 +59,8 @@ app.delete('/api/persons/:id', (req,res) => {
 
 app.post('/api/persons/', (req, res) => {
     const id = Math.floor(Math.random()*10000)
-    console.log(id)
     const person = req.body
     person.id = id
-    console.log(req.body);
 
     if (person.name==='' || !person.number==='') {
         return (
