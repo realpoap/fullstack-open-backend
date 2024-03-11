@@ -10,26 +10,22 @@ app.get('/', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
+    //enabling CORS (from stackoverflow)
+    
     const nbrPersons = persons.length +1
     console.log(nbrPersons)
-    // but how do you get the metadata from the response ?
-    res.send(`Phonebook has information on ${nbrPersons} persons.</br>Time of request : `)
+    // but how do you get the metadata from the req ?
+    // need to enable CORS ?
+    // this is driving me crazy... 
+
+    //Do you mean we just need to create the timestamp ?
+    //I've seen Data header is protected for the response and not reliable for the request
+    //It's been 3h... I give up
+    const date = Date(Date.now())
+    console.log(date)
     
-    if (res.headersSent) {
-        console.log('in if statement');
-        (async() => {
-            try {
-                await (res.hasHeader('Date'))
-                console.log('has Date')
-                const headers = res.getHeaders()
-                console.log(JSON.stringify(headers))
-                // WTF ? how is this possible
-            } catch (err) {
-                console.log(err);
-            } 
-        })()
-        
-    } else {console.log(`No header`);}  
+
+    res.send(`Phonebook has information on ${nbrPersons} persons.</br>Time of request : ${date}`)
 })
 
 app.get('/api/persons', (req, res) => {
