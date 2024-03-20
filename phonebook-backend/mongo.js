@@ -27,8 +27,9 @@ mongoose.connect(url)
 
       if (!name || !number) {
         Person.find({}).then(result => {
-            result.forEach(note => {
-              console.log(note)
+            console.log('phonebook :')
+            result.forEach(person => {
+              console.log(`- ${person.name} ${person.number}`)
             })
             mongoose.connection.close()
           })
