@@ -65,9 +65,11 @@ app.delete('/api/persons/:id', (req,res) => {
 })
 
 app.post('/api/persons/', (req, res) => {
-    const id = Math.floor(Math.random()*10000)
-    const person = req.body
-    person.id = id
+    const body = req.body
+    const person = new Person ({
+        name: body.name,
+        number: body.number,
+    })
 
     if (person.name==='' || !person.number==='') {
         return (
@@ -75,12 +77,15 @@ app.post('/api/persons/', (req, res) => {
         )
     }
 
-    if (persons.find(p => p.name === person.name)){
-        return (
-            res.status(400).json({error: 'name already used in Phonebook'})
-        )
-    }
-
+    // if (persons.find(p => p.name === person.name)){
+    //     return (
+    //         res.status(400).json({error: 'name already used in Phonebook'})
+    //     )
+    // }
+    person.save()
+            .then(savedPerson => {
+                res.json(savedPerson)
+            })
     persons = persons.concat(person)
     res.json(person)
 })
