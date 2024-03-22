@@ -34,12 +34,14 @@ app.get('/', (req, res) => {
 
 app.use(morgan(':method :url :status :content - :response-time ms'))
 
-app.get('/info', (req, res) => {
-    const nbrPersons = persons.length +1
+app.get('/info', (req, res, next) => {
     const date = Date(Date.now())
-    console.log(date)
+    Person.countDocuments({})
+        .then(count => res.send(`Phonebook has information on ${count} persons.</br>Time of request : ${date}`))
+        .catch(err => next(err))
+
     
-    res.send(`Phonebook has information on ${nbrPersons} persons.</br>Time of request : ${date}`)
+    
 })
 
 app.get('/api/persons', (req, res) => {
@@ -50,15 +52,16 @@ app.get('/api/persons', (req, res) => {
         .catch(err => next(err))
 })
 
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    console.log(id);
-    const person = persons.find(p => p.id === id)
-    if (person) {
-        res.json(person).end()
-    } else { 
-        res.status(404).end() 
-    }
+app.get('/api/persons/:id', (req, res, next) => {
+    Person.findById(req.params.id)
+        .then(person => {
+            if (person) {
+                res.json(person).end()
+            } else { 
+                res.status(404).end() 
+            }  
+        })
+        .catch(err => next(err))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
@@ -73,13 +76,11 @@ app.post('/api/persons/', (req, res) => {
         name: body.name,
         number: body.number,
     })
-
     if (person.name==='' || !person.number==='') {
         return (
             res.status(400).json({error: 'you must fill all info when creating a person contact'})
         )
     }
-
     person.save()
             .then(savedPerson => {
                 res.json(savedPerson).end()
