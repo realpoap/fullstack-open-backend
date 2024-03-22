@@ -4,6 +4,7 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
+
 const Person = require('./models/person')
 
 let persons = require('./db.json')
@@ -16,6 +17,17 @@ app.use(express.json())
 app.use(express.static('dist'))
 app.use(cors())
 
+// ERROR HANDLER
+const errorHandler = (error, req, res, next) => {
+    console.log(error.message)
+    if (error.name === 'CastError') {
+        return response.status(400).send({error: 'malformed id'})
+      }
+    next(error)
+}
+
+// ROUTES
+
 app.get('/', (req, res) => {
     res.send('root')
 })
@@ -23,19 +35,9 @@ app.get('/', (req, res) => {
 app.use(morgan(':method :url :status :content - :response-time ms'))
 
 app.get('/info', (req, res) => {
-    //enabling CORS (from stackoverflow)
-    
     const nbrPersons = persons.length +1
-    // but how do you get the metadata from the req ?
-    // need to enable CORS ?
-    // this is driving me crazy... 
-
-    //Do you mean we just need to create the timestamp ?
-    //I've seen Data header is protected for the response and not reliable for the request
-    //It's been 3h... I give up
     const date = Date(Date.now())
     console.log(date)
-    
     
     res.send(`Phonebook has information on ${nbrPersons} persons.</br>Time of request : ${date}`)
 })
@@ -58,10 +60,15 @@ app.get('/api/persons/:id', (req, res) => {
     }
 })
 
-app.delete('/api/persons/:id', (req,res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(p => p.id !== id)
-    res.status(204).end()
+app.delete('/api/persons/:id', (req, res, next) => {
+    Person.findByIdAndDelete(req.params.id)
+        .then(result => {
+            console.log('ok server side')
+            res.status(204).end()
+        })
+        .catch(error => {
+            next(error)
+        })
 })
 
 app.post('/api/persons/', (req, res) => {
@@ -84,11 +91,11 @@ app.post('/api/persons/', (req, res) => {
     // }
     person.save()
             .then(savedPerson => {
-                res.json(savedPerson)
+                res.json(savedPerson).end()
             })
-    persons = persons.concat(person)
-    res.json(person)
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
