@@ -15,7 +15,19 @@ const personSchema = new mongoose.Schema({
           minLength: 3,
           required: true,
         },
-        number: String,
+        number: {
+          type: String,
+          minLength:8,
+          maxLength:15,
+          validate : {
+            validator : (v) => {
+              return /^\(?(\d{2,3})\)?-(\d{3})\-?(\d{4,5})$/.test(v)
+              // https://regex101.com/
+            },
+            message: props => `${props.value} is not a proper cell number, try : (***)-*****`
+          },
+          required: [true, 'User phone number required'],
+        },
     })
       
     personSchema.set('toJSON', {
