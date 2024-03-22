@@ -47,6 +47,7 @@ app.get('/api/persons', (req, res) => {
         .then(persons => {
             res.json(persons)
         })
+        .catch(err => next(err))
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -62,13 +63,8 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndDelete(req.params.id)
-        .then(result => {
-            console.log('ok server side')
-            res.status(204).end()
-        })
-        .catch(error => {
-            next(error)
-        })
+        .then(result => res.status(204).end() )
+        .catch(err => next(err))
 })
 
 app.post('/api/persons/', (req, res) => {
@@ -93,6 +89,7 @@ app.post('/api/persons/', (req, res) => {
             .then(savedPerson => {
                 res.json(savedPerson).end()
             })
+            .catch(err => next(err))
 })
 
 app.use(errorHandler)
