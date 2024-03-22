@@ -80,16 +80,22 @@ app.post('/api/persons/', (req, res) => {
         )
     }
 
-    // if (persons.find(p => p.name === person.name)){
-    //     return (
-    //         res.status(400).json({error: 'name already used in Phonebook'})
-    //     )
-    // }
     person.save()
             .then(savedPerson => {
                 res.json(savedPerson).end()
             })
             .catch(err => next(err))
+})
+
+app.put('/api/persons/:id', (req, res) => {
+    const body = req.body
+    const person = {
+        name: body.name,
+        number: body.number,
+    }
+    Person.findByIdAndUpdate(req.params.id, person, {new:true})
+        .then(updatedPerson => res.json(updatedPerson))
+        .catch(err => next(err))
 })
 
 app.use(errorHandler)
