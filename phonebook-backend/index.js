@@ -21,7 +21,10 @@ app.use(cors())
 const errorHandler = (error, req, res, next) => {
     console.log(error.message)
     if (error.name === 'CastError') {
-        return response.status(400).send({error: 'malformed id'})
+        return res.status(400).send({error: 'malformed id'})
+      } else if (error.name === 'ValidationError') {
+        console.log('validation error in server console')
+        return res.status(400).send({error: error.message})
       }
     next(error)
 }
@@ -39,12 +42,9 @@ app.get('/info', (req, res, next) => {
     Person.countDocuments({})
         .then(count => res.send(`Phonebook has information on ${count} persons.</br>Time of request : ${date}`))
         .catch(err => next(err))
-
-    
-    
 })
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
     Person.find({})
         .then(persons => {
             res.json(persons)
@@ -70,7 +70,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
         .catch(err => next(err))
 })
 
-app.post('/api/persons/', (req, res) => {
+app.post('/api/persons/', (req, res, next) => {
     const body = req.body
     const person = new Person ({
         name: body.name,
@@ -88,13 +88,11 @@ app.post('/api/persons/', (req, res) => {
             .catch(err => next(err))
 })
 
-app.put('/api/persons/:id', (req, res) => {
-    const body = req.body
-    const person = {
-        name: body.name,
-        number: body.number,
-    }
-    Person.findByIdAndUpdate(req.params.id, person, {new:true})
+app.put('/api/persons/:id', (req, res, next) => {
+    const {name, number} = req.body
+    Person.findByIdAndUpdate(req.params.id, 
+        {name, number}, 
+        {new:true, runValidators: true, context:'query'})
         .then(updatedPerson => res.json(updatedPerson))
         .catch(err => next(err))
 })
